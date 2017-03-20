@@ -15,14 +15,38 @@ zdev=Simplify[z-muz]
 alpha0=a+d*(q-p)
 alpha1=-d*(q-p)
 
-bx={-2*alpha0*q,alpha0*(q-p),2*alpha0*p}
-dx={}
-ix={-2*alpha1*q*(2*fx)/(fx+1),alpha1*(q-p)*(2*fx)/(fx+1),2*alpha1*p*(2*fx)/(fx+1)}
+bx={-2*alpha0*p,alpha0*(q-p),2*alpha0*q}
+ix={-2*alpha1*p*(2*fx)/(fx+1),alpha1*(q-p)*(2*fx)/(fx+1),2*alpha1*q*(2*fx)/(fx+1)}
+dx=zdev-bx-ix
 
-by={-2*alpha0*q,alpha0*(q-p),2*alpha0*p}
-dy={,,}
-iy={-2*alpha1*q*(2*fy)/(fy+1),alpha1*(q-p)*(2*fy)/(fy+1),2*alpha1*p*(2*fy)/(fy+1)}
+by={-2*alpha0*p,alpha0*(q-p),2*alpha0*q}
+iy={-2*alpha1*p*(2*fy)/(fy+1),alpha1*(q-p)*(2*fy)/(fy+1),2*alpha1*q*(2*fy)/(fy+1)}
+dy=zdev-by-iy
 
-AxA=
-DxD=()
-IxI=()
+xdev={p*q*fx,-2*p*q*fx,p*q*fx}
+ydev={p*q*fy,-2*p*q*fy,p*q*fy}
+
+indices=Outer[List, Outer[List, {q,p}, {q,p}], Outer[List, {q,p}, {q,p}] ] 
+
+
+fy=
+theta
+gxy
+gyx
+delta
+Delta
+
+fx_vector=indicies[][]*indicies[3]*indicies[4]
+
+tdev=
+gxydev=
+gyxdev=
+ddev=
+Ddev=
+
+joint=Flatten[Outer[Times,hwe,hwe]]
+
+
+AxA=Simplify[joint.Flatten[Outer[Times,bx,by]]]
+DxD=Simplify[joint.Flatten[Outer[Times,dx,dy]]]
+IxI=Simplify[joint.Flatten[Outer[Times,ix,iy]]]
