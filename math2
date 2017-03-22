@@ -1,0 +1,19 @@
+p
+f
+
+q=1-p
+hwe={q^2,p*q,p*q,p^2}
+idev={p*q*f,-p*q*f, -p*q*f,p*q*f}
+freq=Simplify[hwe+idev]
+
+xdev={p*q*fx,-p*q*fx,-p*q*fx,p*q*fx}
+ydev={p*q*fy,-p*q*fy,-p*q*fy,p*q*fy}
+
+indices=Flatten[Outer[List, Flatten[Outer[List, {q,p}, {q,p}], 1], Flatten[Outer[List, {q,p}, {q,p}], 1], 1], 1]
+
+joint0=Flatten[Outer[Times, Flatten[Outer[Times, {q,p}, {q,p}], 1], Flatten[Outer[Times, {q,p}, {q,p}], 1], 1], 1]
+joint1=Flatten[Outer[Times, xdev, Flatten[Outer[Times, {q,p}, {q,p}], 1], 1], 1]
+joint2=Flatten[Outer[Times, Flatten[Outer[Times, {q,p}, {q,p}], 1], ydev, 1], 1]
+
+joint=joint0#+joint1+joint2
+

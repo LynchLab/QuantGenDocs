@@ -5,9 +5,9 @@ a
 d
 
 q=1-p
-z={-a,d,a}
-hwe={q^2,2*p*q,p^2}
-idev={p*q*f,-2*p*q*f,p*q*f}
+z={-a,d,d,a}
+hwe={q^2,p*q,p*q,p^2}
+idev={p*q*f,-p*q*f, -p*q*f,p*q*f}
 freq=Simplify[hwe+idev]
 
 muz=Simplify[z.freq]
@@ -15,38 +15,86 @@ zdev=Simplify[z-muz]
 alpha0=a+d*(q-p)
 alpha1=-d*(q-p)
 
-bx={-2*alpha0*p,alpha0*(q-p),2*alpha0*q}
-ix={-2*alpha1*p*(2*fx)/(fx+1),alpha1*(q-p)*(2*fx)/(fx+1),2*alpha1*q*(2*fx)/(fx+1)}
+bx={-2*alpha0*p, alpha0*(q-p), alpha0*(q-p), 2*alpha0*q}
+ix={ix0, ix1, ix1, ix2}
 dx=zdev-bx-ix
 
-by={-2*alpha0*p,alpha0*(q-p),2*alpha0*q}
-iy={-2*alpha1*p*(2*fy)/(fy+1),alpha1*(q-p)*(2*fy)/(fy+1),2*alpha1*q*(2*fy)/(fy+1)}
+by={-2*alpha0*p,alpha0*(q-p),alpha0*(q-p),2*alpha0*q}
+iy={-2*alpha1*p*(2*fy)/(fy+1)*Gya+Gyb, alpha1*(q-p)*(2*fy)/(fy+1)*Gya+Gyb, alpha1*(q-p)*(2*fy)/(fy+1)*Gya+Gyb, 2*alpha1*q*(2*fy)/(fy+1)*Gya+Gyb}
+iy={iy0, iy1, iy1, iy2}
 dy=zdev-by-iy
 
-xdev={p*q*fx,-2*p*q*fx,p*q*fx}
-ydev={p*q*fy,-2*p*q*fy,p*q*fy}
+s=p*q
+xdev=fx*s*{1,-1,-1, 1}
+ydev=fy*s*{1,-1,-1, 1}
 
-indices=Outer[List, Outer[List, {q,p}, {q,p}], Outer[List, {q,p}, {q,p}] ] 
+0000
+0001
+0010
+0011
+0100
+0101
+0110
+0111
+1000
+1001
+1010
+1011
+1100
+1101
+1110
+1111
+
+tdev=T*s*{1, 1,-1,-1,
+	  1, 1,-1,-1,
+	 -1,-1, 1, 1,
+	 -1,-1, 1, 1}
+
+	{ 1,-1, 1,-1,
+	  1,-1, 1,-1,
+	 -1, 1,-1, 1,
+	 -1, 1,-1, 1}
+
+	{ 1,-1, 1,-1,
+	 -1, 1,-1, 1,
+	  1,-1, 1,-1,
+	 -1, 1,-1, 1}
+
+	{ 1, 1,-1,-1,
+	  1, 1,-1,-1,
+	 -1,-1, 1, 1,
+	 -1,-1, 1, 1}
+
+gxydev=Gxy*{p*q,-p*q,-p*q,p*q*,
+
+gyxdev=Gyx*{p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*T,p*q*T}
+
+ddev=dxy*{p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*T,p*q*T}
+
+Ddev=Dxy*{p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*fy,p*q*T,
+        p*q*T,-p*q*T,-p*q*T,p*q*T}
 
 
-fy=
-theta
-gxy
-gyx
-delta
-Delta
+indices=Flatten[Outer[List, Flatten[Outer[List, {q,p}, {q,p}], 1], Flatten[Outer[List, {q,p}, {q,p}], 1], 1], 1]
 
-fx_vector=indicies[][]*indicies[3]*indicies[4]
+joint0=Flatten[Outer[Times, Flatten[Outer[Times, {q,p}, {q,p}], 1], Flatten[Outer[Times, {q,p}, {q,p}], 1], 1], 1]
+joint1=Flatten[Outer[Times, xdev, Flatten[Outer[Times, {q,p}, {q,p}], 1], 1], 1]
+joint2=Flatten[Outer[Times, Flatten[Outer[Times, {q,p}, {q,p}], 1], ydev, 1], 1]
+joint3=
 
-tdev=
-gxydev=
-gyxdev=
-ddev=
-Ddev=
-
-joint=Flatten[Outer[Times,hwe,hwe]]
-
+joint=joint0+joint1+joint2+tdev+gxydev+gyxdev+ddev+Ddev
 
 AxA=Simplify[joint.Flatten[Outer[Times,bx,by]]]
 DxD=Simplify[joint.Flatten[Outer[Times,dx,dy]]]
 IxI=Simplify[joint.Flatten[Outer[Times,ix,iy]]]
+AxD=Simplify[joint.Flatten[Outer[Times,bx,dy]+Outer[Times,dx,by]]]
+AxI=Simplify[joint.Flatten[Outer[Times,bx,iy]+Outer[Times,ix,by]]]
+DxI=Simplify[joint.Flatten[Outer[Times,dx,iy]+Outer[Times,ix,dy]]]
