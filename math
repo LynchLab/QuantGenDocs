@@ -4,7 +4,14 @@ f
 a
 d
 
+#f0[p_, i_,j_,k_,l_]:=(s:=(-1)^Count[{i,j,k,l},-1]; Return[s] )
+f0[p_, i_,j_,k_,l_]:=(s:=(-1)^Count[{i,j,k,l},-1]; Return[s*Apply[Times, {If[i<0, 1, If[i==0, 1-p, p] ], If[j<0, 1, If[j==0, 1-p, p] ], If[k<0, 1, If[k==0, 1-p, p] ], If[l<0, 1, If[l==0, 1-p, p] ] } ] ] )
+f1[p_,a_, b_, c_, d_]:=(ret:={}; Do[Do[Do[Do[AppendTo[ret, f0[p,Min[-a*i,i-1],Min[-b*j,j-1],Min[-c*k,k-1], Min[-d*l, l-1] ] ], {i,2}], {j,2}], {k,2} ], {l,2} ]; Return[Flatten[ret]])
+
 q=1-p
+s2=p*q^2+q*(-p)^2
+s3=p*q^3+q*(-p)^3
+s4=p*q^4+q*(-p)^4
 z={-a,d,d,a}
 hwe={q^2,p*q,p*q,p^2}
 idev={p*q*f,-p*q*f, -p*q*f,p*q*f}
@@ -12,87 +19,39 @@ freq=Simplify[hwe+idev]
 
 muz=Simplify[z.freq]
 zdev=Simplify[z-muz]
-alpha0=a+d*(q-p)
+alpha0=(a+d*(q-p))
 alpha1=-d*(q-p)
+d2=-d*(q-p)
+v=2*s2
 
 bx={-2*alpha0*p, alpha0*(q-p), alpha0*(q-p), 2*alpha0*q}
-ix={ix0, ix1, ix1, ix2}
+ix={-2*alpha1*p*(2*fx)/(fx+1)*Gxa+Gxb, alpha1*(q-p)*(2*fx)/(fx+1)*Gxa+Gxb, alpha1*(q-p)*(2*fx)/(fx+1)*Gxa+Gxb, 2*alpha1*q*(2*fx)/(fx+1)*Gxa+Gxb}
+ix={0, 0, 0, 0}
+ix={d*v*(fx-f), d*v*(fx-f), d*v*(fx-f), d*v*(fx-f)}
+dx={-2*(p^2+fx*p*q)*d,fx*p*q*d,fx*p*q*d,-2*(q^2+fx*p*q)*d}
 dx=zdev-bx-ix
 
 by={-2*alpha0*p,alpha0*(q-p),alpha0*(q-p),2*alpha0*q}
 iy={-2*alpha1*p*(2*fy)/(fy+1)*Gya+Gyb, alpha1*(q-p)*(2*fy)/(fy+1)*Gya+Gyb, alpha1*(q-p)*(2*fy)/(fy+1)*Gya+Gyb, 2*alpha1*q*(2*fy)/(fy+1)*Gya+Gyb}
-iy={iy0, iy1, iy1, iy2}
+iy={0, 0, 0, 0}
+iy={d*v*(fy-f), d*v*(fy-f), d*v*(fy-f), d*v*(fy-f)}
+dy=zdev-by-iy
+dy={-2*(p^2+fy*p*q)*d,fy*p*q*d,fy*p*q*d,-2*(q^2+fy*p*q)*d}
 dy=zdev-by-iy
 
-s=p*q
-xdev=fx*s*{1,-1,-1, 1}
-ydev=fy*s*{1,-1,-1, 1}
 
-0000
-0001
-0010
-0011
-0100
-0101
-0110
-0111
-1000
-1001
-1010
-1011
-1100
-1101
-1110
-1111
+xdev=fx*s2*(f1[p, 1, 1, -1, -1])
+ydev=fy*s2*(f1[p, -1, -1, 1, 1])
+tdev=Txy*s2*(f1[p, 1, -1, 1, -1]+f1[p, 1, -1, -1, 1]+f1[p, -1, 1, 1, -1]+f1[p, -1, 1, -1, 1])/2
+gxydev=Gxy*s3*(f1[p, 1, 1, 1, -1]+f1[p, 1, 1, -1, 1] )
+gyxdev=Gyx*s3*(f1[p, -1, 1, 1, 1]+f1[p, 1, -1, 1, 1] )
+ddev=dxy*s4*(f1[p, 1, 1, 1, 1] )
+Ddev=Dxy*s2^2*(f1[p, 1, 1, 1, 1] )
 
-tdev=T*s*{1, 1,-1,-1,
-	  1, 1,-1,-1,
-	 -1,-1, 1, 1,
-	 -1,-1, 1, 1}
+joint=f1[p,-1,-1,-1,-1]+xdev+ydev+tdev+gxydev+gyxdev+ddev+Ddev
 
-	{ 1,-1, 1,-1,
-	  1,-1, 1,-1,
-	 -1, 1,-1, 1,
-	 -1, 1,-1, 1}
-
-	{ 1,-1, 1,-1,
-	 -1, 1,-1, 1,
-	  1,-1, 1,-1,
-	 -1, 1,-1, 1}
-
-	{ 1, 1,-1,-1,
-	  1, 1,-1,-1,
-	 -1,-1, 1, 1,
-	 -1,-1, 1, 1}
-
-gxy=G1*t*{1, 1,-1,-1,
-	  1, 1,-1,-1,
-	 -1,-1, 1, 1,
-	 -1,-1, 1, 1}
-
-	{ 1,-1, 1,-1,
-	  1,-1, 1,-1,
-	 -1, 1,-1, 1,
-	 -1, 1,-1, 1}
-
-gxy=G2*t*{1, 1,-1,-1,
-	  1, 1,-1,-1,
-	 -1,-1, 1, 1,
-	 -1,-1, 1, 1}
-
-	{ 1,-1, 1,-1,
-	  1,-1, 1,-1,
-	 -1, 1,-1, 1,
-	 -1, 1,-1, 1}
-
-indices=Flatten[Outer[List, Flatten[Outer[List, {q,p}, {q,p}], 1], Flatten[Outer[List, {q,p}, {q,p}], 1], 1], 1]
-
-joint0=Flatten[Outer[Times, Flatten[Outer[Times, {q,p}, {q,p}], 1], Flatten[Outer[Times, {q,p}, {q,p}], 1], 1], 1]
-joint1=Flatten[Outer[Times, xdev, Flatten[Outer[Times, {q,p}, {q,p}], 1], 1], 1]
-joint2=Flatten[Outer[Times, Flatten[Outer[Times, {q,p}, {q,p}], 1], ydev, 1], 1]
-joint3=
-
-joint=joint0+joint1+joint2+tdev+gxydev+gyxdev+ddev+Ddev
+Gxb=0
+Gyb=0
 
 AxA=Simplify[joint.Flatten[Outer[Times,bx,by]]]
 DxD=Simplify[joint.Flatten[Outer[Times,dx,dy]]]
