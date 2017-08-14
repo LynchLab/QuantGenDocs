@@ -1,0 +1,87 @@
+pa
+pb
+fa
+fb
+
+aa
+ab
+da
+db
+
+f0[pa_,pb_, i_,j_,k_,l_]:=(s:=(-1)^Count[{i,j,k,l},-1]; Return[s*Apply[Times, {If[i<0, 1, If[i==0, 1-pb, pb] ], If[j<0, 1, If[j==0, 1-pb, pb] ], If[k<0, 1, If[k==0, 1-pa, pa] ], If[l<0, 1, If[l==0, 1-pa, pa] ] } ] ] )
+f2[pa_, pb_, a_, b_, c_, d_]:=(ret:={}; Do[Do[Do[Do[AppendTo[ret, f0[pa,pb, Min[-a*i,i-1],Min[-b*j,j-1],Min[-c*k,k-1], Min[-d*l, l-1] ] ], {i,2}], {j,2}], {k,2} ], {l,2} ]; Return[Flatten[ret]])
+
+qa=1-pa
+qb=1-pb
+
+s2a=pa*qa^2+qa*(-pa)^2
+s3a=pa*qa^3+qa*(-pa)^3
+s4a=pa*qa^4+qa*(-pa)^4
+
+s2b=pb*qb^2+qb*(-pb)^2
+s3b=pb*qb^3+qb*(-pb)^3
+s4b=pb*qb^4+qb*(-pb)^4
+
+za={-aA,dA,dA,aA}
+zb={-aA,dB,dB,aB}
+
+count={0.0,0.5,0.5,1.0}
+empty={0.0,0.0,0.0,0.0}
+
+ina={1/(2*qa),-1/(4*pa*qa),-1/(4*pa*qa),1/(2*pa)}
+inb={1/(2*qb),-1/(4*pb*qb),-1/(4*pb*qb),1/(2*pb)}
+
+z=Simplify[Outer[Plus,za,zb]]
+
+hwea={qa^2,pa*qa,pa*qa,pa^2}
+ideva={pa*qa*fa,-pa*qa*fa, -pa*qa*fa,pa*qa*fa}
+
+hweb={qb^2,pb*qb,pb*qb,pb^2}
+idevb={pb*qb*fb,-pb*qb*fb, -pb*qb*fb,pb*qb*fb}
+
+freq=Simplify[Outer[Times,(hwea+ideva),(hweb+idevb)]]
+
+muz=Simplify[Flatten[z].flatten[freq]]
+zdev=Simplify[z-muz]
+
+alpha0a=(aA+dA*(qa-pa))
+alpha0b=(aB+dB*(qb-pb))
+
+ba={-2*alpha0a*pa, alpha0a*(qa-pa), alpha0a*(qa-pa), 2*alpha0a*qa}
+bb={-2*alpha0b*pb, alpha0b*(qb-pb), alpha0b*(qb-pb), 2*alpha0b*qb}
+
+mDa=-2 dA fa (-1 + pa) pa
+mDb=-2 dB fb (-1 + pb) pb
+
+da={ (-2 dA pa^2 + mDa ), (2 dA pa qa + mDa), (2 dA pa qa + mDa ), (-2 dA qa^2 + mDa )}
+db={ (-2 dB pb^2 + mDb ), (2 dB pb qb + mDb), (2 dB pb qb + mDb ), (-2 dB qb^2 + mDb )}
+
+fbdev=fb*s2b*(f2[pb,pb, 1, 1, -1, -1])
+fadev=fa*s2a*(f2[pa,pa, -1, -1, 1, 1])
+tdev=tab*Sqrt[s2a*s2b]*(f2[pa,pb, 1, -1, 1, -1]+f2[pa,pb, 1, -1, -1, 1]+f2[pa,pb, -1, 1, 1, -1]+f2[pa,pb, -1, 1, -1, 1])/2
+gabdev=Gab*(s3a*s3a*s3b)^(1/3)*(f2[pa,pb, 1, 1, 1, -1]+f2[pa,pb, 1, 1, -1, 1] )
+gbadev=Gba*(s3b*s3b*s3a)^(1/3)*(f2[pa,pb, -1, 1, 1, 1]+f2[pa,pb, 1, -1, 1, 1] )
+ddev=dab*Sqrt[s4a*s4b]*(f2[pa,pb, 1, 1, 1, 1] )
+Ddev=Dab*s2a*s2b*(f2[pa,pb, 1, 1, 1, 1] )
+
+joint=f2[pa, pb, -1,-1,-1,-1]+fadev+fbdev+tdev+gabdev+gbadev+ddev+Ddev
+
+meanpa=Simplify[Flatten[joint].Flatten[Outer[Plus,count,empty]]]
+meanpb=Simplify[Flatten[joint].Flatten[Outer[Plus,empty,count]]]
+
+meanfa=Simplify[Flatten[joint].Flatten[Outer[Plus,ina,empty]]]
+meanfb=Simplify[Flatten[joint].Flatten[Outer[Plus,empty,inb]]]
+
+rho=Simplify[Flatten[joint].Flatten[Outer[Times,count,count]]]
+
+meand=Simplify[Flatten[joint].Flatten[Outer[Times,ina,inb]]]
+
+meanA=Simplify[Flatten[joint].Flatten[Outer[Plus,ba,bb]]]
+meanD=Simplify[Flatten[joint].Flatten[Outer[Plus,da,db]]]
+
+sigmaA=FullSimplify[Simplify[Flatten[joint].Flatten[Outer[Times,ba,bb]]]-meanA^2]
+sigmaAD=Simplify[Simplify[Flatten[joint].Flatten[Outer[Times,da,bb]]]+Flatten[joint].Flatten[Outer[Times,ba,db]]-meanA*meanD]
+sigmaD=FullSimplify[Simplify[Flatten[joint].Flatten[Outer[Times,da,db]]]-meanD^2]
+
+k={baba,Baba,baBa,BaBa,bAba,BAba,bABa,BABa,babA,BabA,baBA,BaBA,bAbA,BAbA,bABA,BABA}
+ku={bbaa,Bbaa,Bbaa,BBaa,bbAa,BbAa,BbAa,BBAa,bbAa,BbAa,BbAa,BBAa,bbAA,BbAA,BbAA,BBAA}

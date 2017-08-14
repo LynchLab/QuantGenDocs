@@ -4,7 +4,6 @@ f
 a
 d
 
-#f0[p_, i_,j_,k_,l_]:=(s:=(-1)^Count[{i,j,k,l},-1]; Return[s] )
 f0[p_, i_,j_,k_,l_]:=(s:=(-1)^Count[{i,j,k,l},-1]; Return[s*Apply[Times, {If[i<0, 1, If[i==0, 1-p, p] ], If[j<0, 1, If[j==0, 1-p, p] ], If[k<0, 1, If[k==0, 1-p, p] ], If[l<0, 1, If[l==0, 1-p, p] ] } ] ] )
 f1[p_,a_, b_, c_, d_]:=(ret:={}; Do[Do[Do[Do[AppendTo[ret, f0[p,Min[-a*i,i-1],Min[-b*j,j-1],Min[-c*k,k-1], Min[-d*l, l-1] ] ], {i,2}], {j,2}], {k,2} ], {l,2} ]; Return[Flatten[ret]])
 
@@ -20,25 +19,53 @@ freq=Simplify[hwe+idev]
 muz=Simplify[z.freq]
 zdev=Simplify[z-muz]
 alpha0=(a+d*(q-p))
+#*Sqrt[(1+f)]
 alpha1=-d*(q-p)
-d2=-d*(q-p)
-v=2*s2
+fm=d*f*2*s2
+fx2=1
+fy2=1
+
+rs2=Sqrt[s2]
 
 bx={-2*alpha0*p, alpha0*(q-p), alpha0*(q-p), 2*alpha0*q}
-ix={-2*alpha1*p*(2*fx)/(fx+1)*Gxa+Gxb, alpha1*(q-p)*(2*fx)/(fx+1)*Gxa+Gxb, alpha1*(q-p)*(2*fx)/(fx+1)*Gxa+Gxb, 2*alpha1*q*(2*fx)/(fx+1)*Gxa+Gxb}
-ix={0, 0, 0, 0}
-ix={d*v*(fx-f), d*v*(fx-f), d*v*(fx-f), d*v*(fx-f)}
-dx={-2*(p^2+fx*p*q)*d,fx*p*q*d,fx*p*q*d,-2*(q^2+fx*p*q)*d}
-dx=zdev-bx-ix
+ix={0,0,0,0}
+jx={-p^2/rs2, rs2, rs2, -q^2/rs2}*(2*d*Sqrt[p*q])
+jx={a1,b1,b1,c1}
+jx=fx*rs2*{-a1*p^2/rs2, b1*s2^(1/2), b1*s2^(1/2), -c1*q^2/rs2}*(2*d*Sqrt[p*q])
+jx={a1+fm,b1+fm,b1+fm,c1+fm}
+jx={0,0,0,0}
+dx=(zdev-bx-ix-jx)/(2*d*Sqrt[p*q])
+jx=jx/(2*d*Sqrt[p*q])
 
 by={-2*alpha0*p,alpha0*(q-p),alpha0*(q-p),2*alpha0*q}
-iy={-2*alpha1*p*(2*fy)/(fy+1)*Gya+Gyb, alpha1*(q-p)*(2*fy)/(fy+1)*Gya+Gyb, alpha1*(q-p)*(2*fy)/(fy+1)*Gya+Gyb, 2*alpha1*q*(2*fy)/(fy+1)*Gya+Gyb}
-iy={0, 0, 0, 0}
-iy={d*v*(fy-f), d*v*(fy-f), d*v*(fy-f), d*v*(fy-f)}
-dy=zdev-by-iy
-dy={-2*(p^2+fy*p*q)*d,fy*p*q*d,fy*p*q*d,-2*(q^2+fy*p*q)*d}
-dy=zdev-by-iy
+iy={0,0,0,0}
+jy=fy*rs2*{-a2*p^2/rs2, b2*s2^(1/2), b2*s2^(1/2), -c2*q^2/rs2}*(2*d*Sqrt[p*q])
+jy={a2+fm,b2+fm,b2+fm,c2+fm}
+jy={0,0,0,0}
+dy=(zdev-by-iy-jy)/(2*d*Sqrt[p*q])
+jy=jy/(2*d*Sqrt[p*q])
 
+u1=1-3*p+3 p^2
+u2=q^2-p*q
+u3=1-2*p^2
+u4=(q-p)^2
+u5=p*q-p^2
+u6=q*p
+u7=q^2
+
+#All correct
+
+MyJxJ=4*d^2*p^2*q^2*( 
+2*a2*b1 q p^3 (-(q^2)+fy*q^2-fx*p*q+Txy*u2+dxy u1+Dxy q p-Gxy u4-2 Gyx u2)
++2 a1 b2 q p^3 (-(q^2)+fx*q^2-fy*p*q+Txy*u2+dxy u1+Dxy q p-2 Gxy u2-Gyx u4)
++a2 c1 q^2 p^2 (q p+fx p^2+fy q^2-Txy*2 q p+dxy u1+Dxy q p+2 Gxy u5-2 Gyx u2)
++a1 c2 q^2 p^2 (q p+fy p^2+fx q^2-Txy*2 q p+dxy u1+Dxy q p-2 Gxy u2+2 Gyx u5)
++2 b1 b2 q^2 p^2 (2 q p-2 fy p q - 2 fx p q+Txy u4+2 dxy u1+2 Dxy q p-2 Gxy u4-2 Gyx u4)
++a1 a2 p^4 (q^3 / p+fx q^2+fy q^2+Txy 2 q^2+dxy u1+Dxy q p-2 Gxy u2-2 Gyx u2)
++2 b2 c1 q^3 p (-(p^2)-fy p q +fx p^2-Txy u5+dxy u1+Dxy q p+2 Gxy u5-Gyx u4)
++2 b1 c2 q^3 p (-(p^2)-fx p q +fy p^2-Txy u5+dxy u1+Dxy q p-Gxy u4+2 Gyx u5)
++c1 c2 q^4 (p^3/q+fx p^2+fy p^2+2 Txy p^2+dxy u1+Dxy q p+2 Gxy u5+2 Gyx u5)
+)
 
 xdev=fx*s2*(f1[p, 1, 1, -1, -1])
 ydev=fy*s2*(f1[p, -1, -1, 1, 1])
@@ -48,14 +75,23 @@ gyxdev=Gyx*s3*(f1[p, -1, 1, 1, 1]+f1[p, 1, -1, 1, 1] )
 ddev=dxy*s4*(f1[p, 1, 1, 1, 1] )
 Ddev=Dxy*s2^2*(f1[p, 1, 1, 1, 1] )
 
-joint=f1[p,-1,-1,-1,-1]+xdev+ydev+tdev+gxydev+gyxdev+ddev+Ddev
+meanA=Simplify[freq.bx]
+meanD=Simplify[freq.dx]
+meanJ=Simplify[freq.jx]
+meanI=Simplify[freq.ix]
 
-Gxb=0
-Gyb=0
+joint=f1[p,-1,-1,-1,-1]+xdev+ydev+tdev+gxydev+gyxdev+ddev+Ddev
 
 AxA=Simplify[joint.Flatten[Outer[Times,bx,by]]]
 DxD=Simplify[joint.Flatten[Outer[Times,dx,dy]]]
 IxI=Simplify[joint.Flatten[Outer[Times,ix,iy]]]
+JxJ=Simplify[joint.Flatten[Outer[Times,jx,jy]]]
 AxD=Simplify[joint.Flatten[Outer[Times,bx,dy]+Outer[Times,dx,by]]]
 AxI=Simplify[joint.Flatten[Outer[Times,bx,iy]+Outer[Times,ix,by]]]
+AxJ=Simplify[joint.Flatten[Outer[Times,bx,jy]+Outer[Times,jx,by]]]
 DxI=Simplify[joint.Flatten[Outer[Times,dx,iy]+Outer[Times,ix,dy]]]
+DxJ=Simplify[joint.Flatten[Outer[Times,dx,jy]+Outer[Times,jx,dy]]]
+IxJ=Simplify[joint.Flatten[Outer[Times,ix,jy]+Outer[Times,jx,iy]]]
+
+sol=Simplify[Solve[{a1-2 b1+c1==0, a2-2 b2+c2==0,DxD==p q Dxy, JxJ==u1*dxy, AxD==0, DxJ==0}, {a1, b1, c1, a2, b2, c2}]]
+sol=Simplify[Solve[{a1-2 b1+c1==0, a2-2 b2+c2==0,DxD==p q Dxy, JxJ==u1*dxy}, {a1, b1, c1, a2, b2, c2}]]

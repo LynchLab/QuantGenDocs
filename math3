@@ -1,0 +1,94 @@
+p
+f
+a
+d
+
+f0[p_, i_,j_,k_,l_]:=(s:=(-1)^Count[{i,j,k,l},-1]; Return[s*Apply[Times, {If[i<0, 1, If[i==0, 1-p, p] ], If[j<0, 1, If[j==0, 1-p, p] ], If[k<0, 1, If[k==0, 1-p, p] ], If[l<0, 1, If[l==0, 1-p, p] ] } ] ] )
+f1[p_,a_, b_, c_, d_]:=(ret:={}; Do[Do[Do[Do[AppendTo[ret, f0[p,Min[-a*i,i-1],Min[-b*j,j-1],Min[-c*k,k-1], Min[-d*l, l-1] ] ], {i,2}], {j,2}], {k,2} ], {l,2} ]; Return[Flatten[ret]])
+
+
+q=1-p
+s2=p*q^2+q*(-p)^2
+s3=p*q^3+q*(-p)^3
+s4=p*q^4+q*(-p)^4
+z={-a,d,d,a}
+hwe={q^2,p*q,p*q,p^2}
+idev={p*q*f,-p*q*f, -p*q*f,p*q*f}
+freq=Simplify[hwe+idev]
+
+muz=Simplify[z.freq]
+zdev=Simplify[z-muz]
+alpha0=(a+d*(q-p))
+alpha1=-d*(q-p)
+fm=d*f*2*s2
+
+rs2=Sqrt[s2]
+
+bx={-2*alpha0*p, alpha0*(q-p), alpha0*(q-p), 2*alpha0*q}
+tx={a1, b1, b1, c1}
+ix=tx
+dx=(zdev-bx-ix)
+
+by={-2*alpha0*p,alpha0*(q-p),alpha0*(q-p),2*alpha0*q}
+ty={a2,b2,b2,c2}
+iy=ty
+dy=(zdev-by-iy)
+
+xdev=fx*s2*(f1[p, 1, 1, -1, -1])
+ydev=fy*s2*(f1[p, -1, -1, 1, 1])
+tdev=Txy*s2*(f1[p, 1, -1, 1, -1]+f1[p, 1, -1, -1, 1]+f1[p, -1, 1, 1, -1]+f1[p, -1, 1, -1, 1])/2
+gxydev=Gxy*s3*(f1[p, 1, 1, 1, -1]+f1[p, 1, 1, -1, 1] )
+gyxdev=Gyx*s3*(f1[p, -1, 1, 1, 1]+f1[p, 1, -1, 1, 1] )
+ddev=dxy*s4*(f1[p, 1, 1, 1, 1] )
+Ddev=Dxy*s2^2*(f1[p, 1, 1, 1, 1] )
+
+meanA=Simplify[freq.bx]
+meanD=Simplify[freq.dx]
+meanI=Simplify[freq.ix]
+
+joint=f1[p,-1,-1,-1,-1]+xdev+ydev+tdev+gxydev+gyxdev+ddev+Ddev
+
+sigmaAD=Simplify[freq.(dx*bx)]
+sigmaDI=Simplify[freq.(dx*ix)]
+sigmaA=Simplify[freq.bx^2]
+sigmaD=Simplify[freq.dx^2]
+sigmaI=Simplify[freq.ix^2]
+sigmaAI=Simplify[freq.(ix*bx)]
+
+alpha=(a + d - 2 d p)
+SI=-4 d^2 (-1 + p) p (1 - 3 p + 3 p^2 ) 
+
+sol=FullSimplify[Solve[{sigmaAD==0, sigmaDI==0, sigmaAI==4 alpha d (p^3 q - q^3 p) f, sigmaI==f SI},{a1,b1,c1}]]
+
+
+b1=sol[[1,1,2]]
+c1=sol[[1,2,2]]
+
+sigmaAD=Simplify[freq.(dy*by)]
+sigmaDI=Simplify[freq.(dy*iy)]
+sol=FullSimplify[Solve[{sigmaAD==0, sigmaDI==0},{a2,b2,c2}]]
+b2=sol[[1,1,2]]
+c2=sol[[1,2,2]]
+AxI=Simplify[joint.Flatten[Outer[Times,bx,iy]+Outer[Times,ix,by]]]
+sol=FullSimplify[Solve[AxI==-4 d (Gxy + Gyx) p (a + d - 2 d p) (1 - 3 p + 2 p^2 ),{a1,a2}]]
+
+AxA=Simplify[joint.Flatten[Outer[Times,bx,by]]]
+IxI=Simplify[joint.Flatten[Outer[Times,ix,iy]]]
+DxD=Simplify[joint.Flatten[Outer[Times,dx,dy]]]
+AxD=Simplify[joint.Flatten[Outer[Times,bx,dy]+Outer[Times,dx,by]]]
+DxI=Simplify[joint.Flatten[Outer[Times,ix,dy]+Outer[Times,dx,iy]]]
+
+ZxZ=Simplify[joint.Flatten[Outer[Times,bx+dx+ix,by+dy+iy]]]
+ZxZ2=sigmaA*Txy/(1+f)+( (Dxy+f*(f - fx - fy) )*p q+dxy (1 + 3 (-1 + p) p) )
+
+
+Simplify[AxA/sigmaA]
+Simplify[DxD/sigmaD]
+Simplify[IxI/sigmaI]
+Simplify[AxI/sigmaAI]
+
+##Zero
+
+Simplify[AxD/sigmaAD]
+Simplify[DxI/sigmaDI]
+
