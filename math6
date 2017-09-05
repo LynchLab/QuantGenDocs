@@ -1,0 +1,90 @@
+F0[p_, i_,j_,k_,l_]:=(s:=(-1)^Count[{i,j,k,l},-1]; Return[s*Apply[Times, {If[i<0, 1, If[i==0, 1-p, p] ], If[j<0, 1, If[j==0, 1-p, p] ], If[k<0, 1, If[k==0, 1-p, p] ], If[l<0, 1, If[l==0, 1-p, p] ] } ] ] )
+F1[p_,a_, b_, c_, d_]:=(ret:={}; Do[Do[Do[Do[AppendTo[ret, F0[p,Min[-a*i,i-1],Min[-b*j,j-1],Min[-c*k,k-1], Min[-d*l, l-1] ] ], {i,2}], {j,2}], {k,2} ], {l,2} ]; Return[Flatten[ret]])
+
+q1=1-p1
+s21=p1*q1^2+q1*(-p1)^2
+s31=p1*q1^3+q1*(-p1)^3
+s41=p1*q1^4+q1*(-p1)^4
+
+q2=1-p2
+s22=p2*q2^2+q2*(-p2)^2
+s22=p2*q2^2+q2*(-p2)^2
+s32=p2*q2^3+q2*(-p2)^3
+s42=p2*q2^4+q2*(-p2)^4
+
+z1={-a1,d1,d1,a1}
+z2={-a2,d2,d2,a2}
+
+hwe1={q1^2,p1*q1,p1*q1,p1^2}
+idev1={p1*q1*f1,-p1*q1*f1, -p1*q1*f1,p1*q1*f1}
+freq1=Simplify[hwe1+idev1]
+
+hwe2={q2^2,p2*q2,p2*q2,p2^2}
+idev2={p2*q2*f2,-p2*q2*f2, -p2*q2*f2,p2*q2*f2}
+freq2=Simplify[hwe2+idev2]
+
+muz1=Simplify[z1.freq1]
+zdev1=Simplify[z1-muz1]
+
+muz2=Simplify[z2.freq2]
+zdev2=Simplify[z2-muz2]
+
+freq=Flatten[Outer[Times,freq1,freq2]]
+z=Flatten[Outer[Plus,z1-muz1,z2-muz2]]
+zdev=Simplify[freq*z]
+
+alpha1=(a1+d1*(q1-p1))
+alpha2=(a2+d2*(q2-p2))
+
+rs2=Sqrt[s2]
+
+bx1={-2*alpha1*p1, alpha1*(q1-p1), alpha1*(q1-p1), 2*alpha1*q1}
+by1={-2*alpha1*p1, alpha1*(q1-p1), alpha1*(q1-p1), 2*alpha1*q1}
+
+bx2={-2*alpha2*p2, alpha2*(q2-p2), alpha2*(q2-p2), 2*alpha2*q2}
+by2={-2*alpha2*p2, alpha2*(q2-p2), alpha2*(q2-p2), 2*alpha2*q2}
+
+bx=Flatten[Outer[Plus,bx1,bx2]]
+by=Flatten[Outer[Plus,by1,by2]]
+
+dx1=(zdev1-bx1)
+dy1=(zdev1-by1)
+
+dx2=(zdev2-bx2)
+dy2=(zdev2-by2)
+
+dx=Flatten[Outer[Plus,dx1,dx2]]
+dy=Flatten[Outer[Plus,dy1,dy2]]
+
+xdev=fx*Flatten[Outer[Times,s21*F1[p1,1,1,-1,-1],s22*F1[p2,1,1,-1,-1]]]
+ydev=fy*Flatten[Outer[Times,s21*F1[p1,1,1,-1,-1],s22*F1[p2,1,1,-1,-1]]]
+
+tdev1=Txy*s21*(F1[p1, 1, -1, 1, -1]+F1[p1, 1, -1, -1, 1]+F1[p1, -1, 1, 1, -1]+F1[p1, -1, 1, -1, 1])/2
+tdev2=Txy*s22*(F1[p2, 1, -1, 1, -1]+F1[p2, 1, -1, -1, 1]+F1[p2, -1, 1, 1, -1]+F1[p2, -1, 1, -1, 1])/2
+
+tdev=Flatten[Outer[Times,tdev1,tdev2]]
+
+gxydev=Gxy*s31*(F1[p1, 1, 1, 1, -1]+F1[p1, 1, 1, -1, 1] )
+gyxdev=Gyx*s31*(F1[p1, -1, 1, 1, 1]+F1[p1, 1, -1, 1, 1] )
+ddev=dxy*s41*(F1[p1, 1, 1, 1, 1] )
+Ddev=Dxy*s21^2*(F1[p1, 1, 1, 1, 1] )
+
+meanA=Simplify[freq.bx]
+meanD=Simplify[(freq.dx+freq.dy)/2]
+
+joint=Flatten[Outer[Times,F1[p1,-1,-1,-1,-1], F1[p2,-1,-1,-1,-1]]]+xdev+ydev+tdev
++gxydev+gyxdev+ddev+Ddev
+
+sigmaAD=Simplify[freq.(dx*bx)/2+freq.(dy*by)/2-2*meanA*meanD]
+sigmaA=Simplify[freq.bx^2-meanA^2]
+sigmaD=Simplify[freq.dx^2/2+freq.dy^2/2-meanD^2]
+
+AxA=Simplify[Flatten[joint].Flatten[Outer[Times,bx,by]]]
+DxD=Simplify[Flatten[joint].Flatten[Outer[Times,dx,dy]]]
+AxD=Simplify[Flatten[joint].Flatten[Outer[Times,bx,dy]+Outer[Times,dx,by]]]
+
+Simplify[AxA/sigmaA]
+Simplify[DxD/sigmaD]
+Simplify[AxD/sigmaAD]
+
+
